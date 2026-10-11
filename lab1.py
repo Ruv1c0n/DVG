@@ -11,9 +11,9 @@ r"""
   2) сведение к СЛАУ  (I - Q) phi = f  (квадратурная формула трапеций).
 
 Запуск:
-    python lab3_integral_equations.py 5            # вариант 5
-    python lab3_integral_equations.py 12 --n 200   # вариант 12, 200 разбиений
-    python lab3_integral_equations.py 5 --save     # сохранить график в png
+    python lab1.py 5            # вариант 5
+    python lab1.py 12 --n 200   # вариант 12, 200 разбиений
+    python lab1.py 5 --save     # сохранить график в png
 """
 import argparse
 
