@@ -11,9 +11,9 @@ r"""
   2) сведение к СЛАУ  (I - Q) phi = f  (квадратурная формула трапеций).
 
 Запуск:
-    python lab1.py 5            # вариант 5
-    python lab1.py 12 --n 200   # вариант 12, 200 разбиений
-    python lab1.py 5 --save     # сохранить график в png
+    python lab1.py 6            # вариант 5
+    python lab1.py 6 --n 200    # вариант 6, 200 разбиений
+    python lab1.py 6 --save     # сохранить график в png
 """
 import argparse
 
@@ -101,7 +101,7 @@ def solve_slae(Q, f):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("variant", type=int, nargs="?",
-                    default=1, help="номер варианта 1..18")
+                    default=6, help="номер варианта 1..18")
     ap.add_argument("--n", type=int, default=100,
                     help="число разбиений отрезка")
     ap.add_argument("--eps", type=float, default=1e-10,
