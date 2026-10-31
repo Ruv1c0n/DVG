@@ -11,8 +11,8 @@ r"""
   2) сведение к СЛАУ  (I - Q) phi = f  (квадратурная формула трапеций).
 
 Запуск:
-    python lab1.py 6            # вариант 5
-    python lab1.py 6 --n 200    # вариант 6, 200 разбиений
+    python lab1.py              # вариант 6 (по умолчанию)
+    python lab1.py 12 --n 200   # вариант 12, 200 разбиений
     python lab1.py 6 --save     # сохранить график в png
 """
 import argparse
@@ -24,6 +24,34 @@ pi = np.pi
 # совместимость NumPy 1.x/2.x
 trapezoid = getattr(np, 'trapezoid', None) or np.trapz
 LAMBDA = 1.0
+
+sh, ch = np.sinh, np.cosh
+
+# ----------------------------------------------------------------------------
+# Варианты заданий (Глазков Д.В., стр. 30-31):
+# задачи 1-9 - уравнение Фредгольма, задачи 10-18 - уравнение Вольтерра
+# вариант: (тип, a, b, K(t, s), f(t))
+# ----------------------------------------------------------------------------
+VARIANTS = {
+    1:  ("F", 0, pi,      lambda t, s: np.cos(t + s) / pi,          lambda t: 3 * np.sin(t)),
+    2:  ("F", 0, 1,       lambda t, s: (t + s)**3 / (1 + s + s**2 + s**3), lambda t: 0.75 - t**2 / 2),
+    3:  ("F", 0, pi / 5,  lambda t, s: 5 * np.sin(5 * t + 5 * s) / pi, lambda t: 1.5 * np.sin(5 * t)),
+    4:  ("F", 0, 1,       lambda t, s: sh(t + s) / ch(1 + s),       lambda t: ch(t)),
+    5:  ("F", 0, 1,       lambda t, s: (t + s)**2 / (1 + s + s**2), lambda t: 2 / 3 * np.ones_like(t)),
+    6:  ("F", 0, pi,      lambda t, s: np.cos(3 * t + 3 * s) / pi,  lambda t: 2 * np.cos(3 * t)),
+    7:  ("F", 0, 1,       lambda t, s: s**4 - t**2 * s,             lambda t: 5 * t**2 - 4 / 7),
+    8:  ("F", 0, pi,      lambda t, s: np.cos(t + s) / pi,          lambda t: 0.5 * np.cos(t)),
+    9:  ("F", 1, 2,       lambda t, s: t**2 / s - t / s**2,         lambda t: t / 2 - t**2 / 4),
+    10: ("V", 0, 1,       lambda t, s: -sh(t - s),                  lambda t: t),
+    11: ("V", 0, pi,      lambda t, s: np.sin(t - s),               lambda t: t),
+    12: ("V", 0, pi,      lambda t, s: 2 * np.cos(t - s),           lambda t: t * np.cos(t)),
+    13: ("V", 0, 1,       lambda t, s: s - t,                       lambda t: t),
+    14: ("V", 0, 1,       lambda t, s: 1 + 0 * t,                   lambda t: 2 * np.cos(t)),
+    15: ("V", 0, pi,      lambda t, s: np.exp(s - t) * np.sin(t - s), lambda t: np.exp(-t)),
+    16: ("V", 0, 1,       lambda t, s: -np.exp(t - s),              lambda t: t),
+    17: ("V", 0, pi,      lambda t, s: np.exp(2 * (s - t)),         lambda t: t * (1 + np.exp(-2 * t))),
+    18: ("V", 0, 1,       lambda t, s: np.exp(t - s),               lambda t: 2 * np.ones_like(t)),
+}
 
 
 # ----------------------------------------------------------------------------
@@ -101,7 +129,7 @@ def solve_slae(Q, f):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("variant", type=int, nargs="?",
-                    default=6, help="номер варианта 1..18")
+                    default=6, help="номер варианта 1..18 (1-9 Фредгольм, 10-18 Вольтерра)")
     ap.add_argument("--n", type=int, default=100,
                     help="число разбиений отрезка")
     ap.add_argument("--eps", type=float, default=1e-10,
@@ -110,13 +138,14 @@ def main():
                     help="сохранить график в png")
     args = ap.parse_args()
 
-    kind, a, b, K, f_fun = ("F", 0, pi, lambda t, s: np.cos(
-        3 * t + 3 * s) / pi, lambda t: 2 * np.cos(3 * t))
+    if args.variant not in VARIANTS:
+        raise SystemExit(f"Нет варианта {args.variant}. Доступны: 1..18")
+    kind, a, b, K, f_fun = VARIANTS[args.variant]
 
     check_contraction(kind, a, b, K)
 
     t, Q = build_Q(kind, a, b, K, args.n)
-    f = f_fun(t) * np.ones_like(t)
+    f = f_fun(t)
 
     if kind == "F":
         rho = max(abs(np.linalg.eigvals(Q)))
@@ -163,7 +192,7 @@ def main():
     fig.suptitle(f"Вариант {args.variant}, n = {args.n}")
     fig.tight_layout()
     if args.save:
-        fn = f"lab3_variant{args.variant}.png"
+        fn = f"lab1_variant{args.variant}.png"
         fig.savefig(fn, dpi=130)
         print("График сохранён:", fn)
     else:

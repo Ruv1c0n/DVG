@@ -19,8 +19,8 @@
 
 Запуск:
     python lab4.py                 - параметры спросит программа
-    python lab4.py <метод> <K>     - например:  python lab4.py 1 5
-        K = 1/h:  K=5 -> h=0.2 (быстро),  K=10 -> h=0.1 (как в методичке, дольше)
+    python lab4.py <метод> <K>     - например:  python lab4.py 1 10
+        K = 1/h:  K=10 -> h=0.1 (как в методичке),  K=5 -> h=0.2 (быстрее)
 """
 import sys
 import time
@@ -194,8 +194,8 @@ def ask_params():
     m = ""
     while m not in ("1", "2"):
         m = input("Выберите метод: ").strip()
-    k = input("K = 1/h (5 -> h=0.2, 10 -> h=0.1) [5]: ").strip()
-    return m, int(k) if k else 5
+    k = input("K = 1/h (10 -> h=0.1, 5 -> h=0.2) [10]: ").strip()
+    return m, int(k) if k else 10
 
 
 def main():
@@ -215,18 +215,18 @@ def main():
     else:
         name = "метод наискорейшего спуска"
         u, it, hist = steepest_descent(u0, inside, eps, 200000)
-    print(f"{name}: {it} итераций, {time.time() - t:.1f} с, критерий max|Δu| < {eps:g}")
+    print(f"{name}: {it} итераций, {time.time() - t:.1f} с, критерий max|u_new - u_old| < {eps:g}")
 
     print_table(xs, ys, u, inside, bound, K)
 
     # проверки
     umin, umax = u[inside].min(), u[inside].max()
     bmin, bmax = u[bound].min(), u[bound].max()
-    print(f"\nПринцип максимума: u внутри [{umin:.4f}, {umax:.4f}] ⊂ значения на границе [{bmin:.4f}, {bmax:.4f}]"
+    print(f"\nПринцип максимума: u внутри [{umin:.4f}, {umax:.4f}] в пределах граничных [{bmin:.4f}, {bmax:.4f}]"
           f" -> {'выполнен' if bmin - 1e-9 <= umin and umax <= bmax + 1e-9 else 'НАРУШЕН'}")
     res = max(abs(u[i - 1, j] + u[i + 1, j] + u[i, j - 1] + u[i, j + 1] - 4 * u[i, j])
               for i, j in zip(*np.nonzero(inside)))
-    print(f"Невязка разностных уравнений: max|Σсоседей - 4u| = {res:.2e}")
+    print(f"Невязка разностных уравнений: max|сумма соседей - 4u| = {res:.2e}")
     ref = direct_reference(u0, inside)
     if ref is not None:
         print(
